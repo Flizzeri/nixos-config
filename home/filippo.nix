@@ -8,22 +8,41 @@
   programs.home-manager.enable = true;
 
   # ---- Shell & Prompt ----
-  programs.zsh = {
-    enable = true;
-    enableCompletion = true;
-    autosuggestions.enable = true;
-    syntaxHighlighting.enable = true;
-    oh-my-zsh = {
-      enable = true;
-      theme = "robbyrussell";
-      plugins = [ "git" "fzf" "docker" "kubectl" "zoxide" ];
-    };
-    shellAliases = {
-      ll = "ls -la";
-      gs = "git status";
-      rebuild = "sudo nixos-rebuild switch --flake ~/nixos-config#workstation";
-    };
-  };
+	programs.zsh = {
+	enable = true;
+	enableCompletion = true;
+	oh-my-zsh = {
+	enable = true;
+	theme = "robbyrussell";
+	plugins = [ "git" "fzf" "docker" "kubectl" "zoxide" ];
+	};
+	plugins = [
+	{
+	name = "zsh-autosuggestions";
+	src = pkgs.fetchFromGitHub {
+		owner = "zsh-users";
+		repo = "zsh-autosuggestions";
+		rev = "v0.7.0"; # latest stable
+		sha256 = "sha256-Rs3jB6gE8xj9m+VMSDXx5tbIrb0qpDjeG8OqgEpz4IU=";
+	};
+	}
+	{
+	name = "zsh-syntax-highlighting";
+	src = pkgs.fetchFromGitHub {
+		owner = "zsh-users";
+		repo = "zsh-syntax-highlighting";
+		rev = "0.8.0"; # latest stable
+		sha256 = "sha256-pxJ2PLuBqR4Ej9G+9xNHSIYI3Q2UbTcy7QWhs1A0jts=";
+	};
+	}
+	];
+	shellAliases = {
+	ll = "ls -la";
+	gs = "git status";
+	rebuild = "sudo nixos-rebuild switch --flake ~/nixos-config#workstation";
+	};
+	};
+
 
   programs.alacritty.enable = true;
 
