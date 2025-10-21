@@ -1,8 +1,8 @@
 { config, pkgs, ... }:
 
 {
-  home.username = "filippo";
-  home.homeDirectory = "/Users/filippo";
+  home.username = "filippolizzeri";
+  home.homeDirectory = "/Users/filippolizzeri";
 
   programs.home-manager.enable = true;
 
