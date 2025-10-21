@@ -10,9 +10,9 @@
   programs.zsh.enable = true;
 
   # Define the local user (adjust if needed)
-  users.users.filippo = {
-    name = "filippo";
-    home = "/Users/filippo";
+  users.users.filippolizzeri = {
+    name = "filippolizzeri";
+    home = "/Users/filippolizzeri";
   };
 
   # Reasonable defaults
