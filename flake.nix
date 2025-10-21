@@ -10,13 +10,24 @@
   };
 
   outputs = { self, nixpkgs, nix-darwin, home-manager, flake-utils, ... }:
-    let
-      # Helper to import pkgs
-      mkPkgs = system: import nixpkgs { inherit system; };
-    in {
-      ############################
-      ## NIXOS CONFIGURATIONS
-      ############################
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = import nixpkgs { inherit system; };
+      in {
+        ######################################
+        ## DEV SHELLS (per system)
+        ######################################
+        devShells = {
+          afterdark = import ./shells/afterdark.nix { inherit pkgs; };
+          codice-atlantico = import ./shells/codice-atlantico.nix { inherit pkgs; };
+          notetaker = import ./shells/notetaker.nix { inherit pkgs; };
+        };
+      }
+    ) //
+    ######################################
+    ## NON-SYSTEM OUTPUTS (NixOS + Darwin)
+    ######################################
+    {
       nixosConfigurations = {
         workstation = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
@@ -27,9 +38,6 @@
         };
       };
 
-      ############################
-      ## DARWIN CONFIGURATIONS
-      ############################
       darwinConfigurations = {
         macbook-x86_64 = nix-darwin.lib.darwinSystem {
           system = "x86_64-darwin";
@@ -43,6 +51,7 @@
             }
           ];
         };
+
         macbook-aarch64 = nix-darwin.lib.darwinSystem {
           system = "aarch64-darwin";
           modules = [
@@ -56,16 +65,5 @@
           ];
         };
       };
-
-      ############################
-      ## DEV SHELLS
-      ############################
-      devShells = flake-utils.lib.eachDefaultSystem (system:
-        let pkgs = mkPkgs system;
-        in {
-          afterdark = import ./shells/afterdark.nix { inherit pkgs; };
-          codice-atlantico = import ./shells/codice-atlantico.nix { inherit pkgs; };
-          notetaker = import ./shells/notetaker.nix { inherit pkgs; };
-        });
     };
 }
