@@ -4,6 +4,8 @@
   # Enable flakes and the new CLI on macOS
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  nix.enable = false;
+
   # Use zsh as the login shell on macOS
   programs.zsh.enable = true;
 
