@@ -1,40 +1,38 @@
 {
-  description = "F L's NixOS + Home Manager configuration";
+  description = "Filippo’s Nix environments (macOS via nix-darwin, plus portable dev shells)";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
-    home-manager =  {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nixpkgs.url       = "github:NixOS/nixpkgs/nixos-unstable";
+    home-manager.url  = "github:nix-community/home-manager";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    nix-darwin.url    = "github:LnL7/nix-darwin";
+    flake-utils.url   = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, nix-darwin, flake-utils, ... }:
     let
-      system = "x86_64-linux";
-    in {
-      # --- NixOS Configurations ---
-      nixosConfigurations = {
-        workstation = nixpkgs.lib.nixosSystem {
-          inherit system;
+      # Helper to make shells available on all common systems
+      perSystem = flake-utils.lib.eachDefaultSystem (system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+        in {
+          devShells = import ./shells { inherit pkgs; };
+        });
+
+    in
+    perSystem // {
+      darwinConfigurations = {
+        macbook-x86_64 = nix-darwin.lib.darwinSystem {
+          system = "x86_64-darwin";
           modules = [
-            ./hosts/workstation/configuration.nix
-            ./hosts/workstation/hardware-configuration.nix
-            home-manager.nixosModules.home-manager
+            ./hosts/macbook/configuration.nix
+            home-manager.darwinModules.home-manager
             {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
               home-manager.users.filippo = import ./home/filippo.nix;
             }
           ];
-        };
-      };
-
-      # --- Home Manager standalone (for macOS, etc.) ---
-      homeConfigurations = {
-        "filippo@macbook" = home-manager.lib.homeManagerConfiguration {
-          pkgs = import nixpkgs { inherit system; };
-          modules = [ ./home/filippo.nix ];
         };
       };
     };
