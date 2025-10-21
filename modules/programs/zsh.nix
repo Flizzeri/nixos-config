@@ -3,8 +3,12 @@
   programs.zsh = {
     enable = true;
     enableCompletion = true;
-    autosuggest.enable = true;
-    syntaxHighlighting.enable = true;
+
+    plugins = {
+      autosuggestions.enable = true;
+      syntax-highlighting.enable = true;
+    };
+
     oh-my-zsh = {
       enable = true;
       theme = "robbyrussell";
