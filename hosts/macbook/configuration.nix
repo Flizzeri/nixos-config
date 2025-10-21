@@ -1,24 +1,23 @@
 { config, pkgs, ... }:
 
 {
-  # Enable flakes and the new CLI on macOS
+  # Determinate Systems manages Nix, so disable nix-darwin’s internal control.
+  nix.enable = false;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  nix.enable = false;
-
-  # Use zsh as the login shell on macOS
+  # macOS shell
   programs.zsh.enable = true;
 
-  # Define the local user (adjust if needed)
+  # Define your actual macOS user (match `whoami`)
   users.users.filippolizzeri = {
     name = "filippolizzeri";
     home = "/Users/filippolizzeri";
   };
 
-  # Reasonable defaults
+  # Touch ID for sudo
   security.pam.services.sudo_local.touchIdAuth = true;
 
-  # Keep the system relatively quiet
+  # Simplify default Darwin features
   documentation.enable = false;
-  system.stateVersion = 5; # Darwin module format version (not macOS version)
+  system.stateVersion = 5;
 }

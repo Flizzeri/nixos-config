@@ -1,26 +1,35 @@
 {
-  description = "Filippo’s Nix environments (macOS via nix-darwin, plus portable dev shells)";
+  description = "Filippo Lizzeri's configuration";
 
   inputs = {
-    nixpkgs.url       = "github:NixOS/nixpkgs/nixos-unstable";
-    home-manager.url  = "github:nix-community/home-manager";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nix-darwin.url = "github:LnL7/nix-darwin";
+    home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
-    nix-darwin.url    = "github:LnL7/nix-darwin";
-    flake-utils.url   = "github:numtide/flake-utils";
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, home-manager, nix-darwin, flake-utils, ... }:
+  outputs = { self, nixpkgs, nix-darwin, home-manager, flake-utils, ... }:
     let
-      # Helper to make shells available on all common systems
-      perSystem = flake-utils.lib.eachDefaultSystem (system:
-        let
-          pkgs = import nixpkgs { inherit system; };
-        in {
-          devShells = import ./shells { inherit pkgs; };
-        });
+      # Helper to import pkgs
+      mkPkgs = system: import nixpkgs { inherit system; };
+    in {
+      ############################
+      ## NIXOS CONFIGURATIONS
+      ############################
+      nixosConfigurations = {
+        workstation = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            ./hosts/workstation/configuration.nix
+            ./modules/common
+          ];
+        };
+      };
 
-    in
-    perSystem // {
+      ############################
+      ## DARWIN CONFIGURATIONS
+      ############################
       darwinConfigurations = {
         macbook-x86_64 = nix-darwin.lib.darwinSystem {
           system = "x86_64-darwin";
@@ -30,10 +39,33 @@
             {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
-              home-manager.users.filippo = import ./home/filippo.nix;
+              home-manager.users.filippolizzeri = import ./home/filippo.nix;
+            }
+          ];
+        };
+        macbook-aarch64 = nix-darwin.lib.darwinSystem {
+          system = "aarch64-darwin";
+          modules = [
+            ./hosts/macbook/configuration.nix
+            home-manager.darwinModules.home-manager
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.users.filippolizzeri = import ./home/filippo.nix;
             }
           ];
         };
       };
+
+      ############################
+      ## DEV SHELLS
+      ############################
+      devShells = flake-utils.lib.eachDefaultSystem (system:
+        let pkgs = mkPkgs system;
+        in {
+          afterdark = import ./shells/afterdark.nix { inherit pkgs; };
+          codice-atlantico = import ./shells/codice-atlantico.nix { inherit pkgs; };
+          notetaker = import ./shells/notetaker.nix { inherit pkgs; };
+        });
     };
 }
