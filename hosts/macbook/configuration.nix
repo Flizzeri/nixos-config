@@ -4,9 +4,6 @@
   # Enable flakes and the new CLI on macOS
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  # nix-daemon for multi-user installs (recommended on macOS)
-  services.nix-daemon.enable = true;
-
   # Use zsh as the login shell on macOS
   programs.zsh.enable = true;
 
@@ -17,7 +14,7 @@
   };
 
   # Reasonable defaults
-  security.pam.enableSudoTouchIdAuth = true;
+  security.pam.services.sudo_local.touchIdAuth = true;
 
   # Keep the system relatively quiet
   documentation.enable = false;
