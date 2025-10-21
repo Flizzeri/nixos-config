@@ -17,7 +17,6 @@
     ../modules/services/ssh-agent.nix
   ];
 
-  home.file.".zshenv".source = ../dotfiles/zshenv;
   home.file.".ssh/config".source = ../dotfiles/ssh/config;
   
   home.stateVersion = "24.05";
