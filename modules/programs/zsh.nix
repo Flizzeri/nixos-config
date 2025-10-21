@@ -4,10 +4,16 @@
     enable = true;
     enableCompletion = true;
 
-    plugins = {
-      autosuggestions.enable = true;
-      syntax-highlighting.enable = true;
-    };
+    plugins = [
+      {
+        name = "zsh-autosuggestions";
+        src = pkgs.zsh-autosuggestions;
+      }
+      {
+        name = "zsh-syntax-highlighting";
+        src = pkgs.zsh-syntax-highlighting;
+      }
+    ];
 
     oh-my-zsh = {
       enable = true;
